@@ -1,0 +1,169 @@
+version: '3.8'
+
+services:
+  # MongoDB service
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - backend-network
+
+  # Redis service
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - backend-network
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./api-gateway
+    container_name: api-gateway
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+      - USER_SERVICE_URL=http://user-service:5001
+      - CONTENT_SERVICE_URL=http://content-service:5002
+      - LEARNING_ENGINE_URL=http://learning-engine:5003
+      - ANALYTICS_SERVICE_URL=http://analytics-service:5004
+      - JWT_SECRET_KEY=your_jwt_secret_key
+    depends_on:
+      - user-service
+      - content-service
+      - learning-engine
+      - analytics-service
+    networks:
+      - backend-network
+
+  # User Management Service
+  user-service:
+    build:
+      context: ./user-service
+    container_name: user-service
+    restart: always
+    ports:
+      - "5001:5001"
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+      - MONGODB_URI=mongodb://mongodb:27017/adaptive_learning
+      - JWT_SECRET_KEY=your_jwt_secret_key
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - backend-network
+
+  # Content Delivery Service
+  content-service:
+    build:
+      context: ./content-service
+    container_name: content-service
+    restart: always
+    ports:
+      - "5002:5002"
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+      - MONGODB_URI=mongodb://mongodb:27017/adaptive_learning
+      - REDIS_URL=redis://redis:6379/1
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - backend-network
+
+  # Adaptive Learning Engine Service
+  learning-engine:
+    build:
+      context: ./learning-engine
+    container_name: learning-engine
+    restart: always
+    ports:
+      - "5003:5003"
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+      - MONGODB_URI=mongodb://mongodb:27017/adaptive_learning
+      - REDIS_URL=redis://redis:6379/2
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - backend-network
+
+  # Analytics Service
+  analytics-service:
+    build:
+      context: ./analytics-service
+    container_name: analytics-service
+    restart: always
+    ports:
+      - "5004:5004"
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+      - MONGODB_URI=mongodb://mongodb:27017/adaptive_learning
+      - REDIS_URL=redis://redis:6379/3
+      - CELERY_BROKER_URL=redis://redis:6379/4
+      - CELERY_RESULT_BACKEND=redis://redis:6379/4
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - backend-network
+
+  # Celery Worker for Analytics Service
+  analytics-worker:
+    build:
+      context: ./analytics-service
+    container_name: analytics-worker
+    restart: always
+    command: celery -A celery_worker.celery worker --loglevel=info
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/adaptive_learning
+      - REDIS_URL=redis://redis:6379/3
+      - CELERY_BROKER_URL=redis://redis:6379/4
+      - CELERY_RESULT_BACKEND=redis://redis:6379/4
+    depends_on:
+      - mongodb
+      - redis
+      - analytics-service
+    networks:
+      - backend-network
+
+  # Frontend React App
+  frontend:
+    build:
+      context: ./frontend
+    container_name: frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api-gateway
+    networks:
+      - frontend-network
+      - backend-network
+
+networks:
+  frontend-network:
+    driver: bridge
+  backend-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
