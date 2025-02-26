@@ -1,6 +1,6 @@
 import os
 import json
-import datetime
+from datetime import datetime, timedelta, timezone
 import bcrypt
 import jwt
 from flask import Flask, request, jsonify
@@ -11,6 +11,7 @@ from bson.json_util import dumps
 import redis
 from dotenv import load_dotenv
 from marshmallow import Schema, fields, validate, ValidationError
+import re
 
 # Load environment variables
 load_dotenv()
@@ -32,10 +33,16 @@ redis_client = redis.from_url(REDIS_URL)
 JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'your_jwt_secret_key')
 JWT_EXPIRATION_HOURS = 24
 
+# Custom email validator with regex
+def email_validator(email):
+    email_regex = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+    if not re.match(email_regex, email):
+        raise validate.ValidationError("Invalid email format. Please enter a valid email address.")
+    
 # Validation schemas
 class UserRegistrationSchema(Schema):
     username = fields.String(required=True, validate=validate.Length(min=3, max=50))
-    email = fields.Email(required=True)
+    email = fields.String(required=True, validate=email_validator)
     password = fields.String(required=True, validate=validate.Length(min=8))
     role = fields.String(required=True, validate=validate.OneOf(['student', 'teacher']))
     first_name = fields.String(required=True)
@@ -53,18 +60,27 @@ class UserProfileUpdateSchema(Schema):
 
 # Helper function to generate JWT token
 def generate_token(user_id, role):
+    now = datetime.now(timezone.utc)
     payload = {
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=JWT_EXPIRATION_HOURS),
-        'iat': datetime.datetime.utcnow(),
-        'sub': str(user_id),
+        'exp': now + timedelta(hours=JWT_EXPIRATION_HOURS),  # Expiry time
+        'iat': now,  # Issued at time
+        'sub': str(user_id),  # Subject (user ID)
         'role': role
     }
     return jwt.encode(payload, JWT_SECRET_KEY, algorithm='HS256')
 
 # Health check endpoint
-@app.route('/health', methods=['GET'])
-def health_check():
-    return jsonify({'status': 'healthy', 'service': 'user-service'})
+@app.route('/', methods=['GET'])
+def index():
+    return jsonify({
+        "status": "healthy",
+        "service": "user-service",
+        "available_endpoints": [
+            "/api/auth/register",
+            "/api/auth/login",
+            "/api/users/profile/{id}",
+        ]
+    })
 
 # User registration endpoint
 @app.route('/api/auth/register', methods=['POST'])
@@ -92,8 +108,8 @@ def register():
             'role': data['role'],
             'first_name': data['first_name'],
             'last_name': data['last_name'],
-            'created_at': datetime.datetime.utcnow(),
-            'updated_at': datetime.datetime.utcnow(),
+            'created_at': datetime.now(timezone.utc),
+            'updated_at': datetime.now(timezone.utc),
             'preferences': {},
             'active': True
         }
@@ -235,7 +251,7 @@ def update_profile():
         
         # Update user data
         update_data = {
-            'updated_at': datetime.datetime.utcnow()
+            'updated_at': datetime.now(timezone.utc)
         }
         
         if 'first_name' in data:
@@ -287,3 +303,13 @@ def update_profile():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001) 
+
+# POST: http://localhost:5001/api/auth/register
+# {
+#     "username": "john_doe3",
+#     "email": "john.doe4@example.com",
+#     "password": "SecurePass123",
+#     "role": "student",
+#     "first_name": "John",
+#     "last_name": "Doe"
+# }

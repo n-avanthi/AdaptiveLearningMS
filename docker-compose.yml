@@ -31,6 +31,8 @@ services:
     restart: always
     ports:
       - "5000:5000"
+    env_file:
+      - .env
     environment:
       - FLASK_APP=app.py
       - FLASK_ENV=development
@@ -38,7 +40,6 @@ services:
       - CONTENT_SERVICE_URL=http://content-service:5002
       - LEARNING_ENGINE_URL=http://learning-engine:5003
       - ANALYTICS_SERVICE_URL=http://analytics-service:5004
-      - JWT_SECRET_KEY=your_jwt_secret_key
     depends_on:
       - user-service
       - content-service
@@ -55,12 +56,11 @@ services:
     restart: always
     ports:
       - "5001:5001"
+    env_file:
+      - .env
     environment:
       - FLASK_APP=app.py
       - FLASK_ENV=development
-      - MONGODB_URI=mongodb://mongodb:27017/adaptive_learning
-      - JWT_SECRET_KEY=your_jwt_secret_key
-      - REDIS_URL=redis://redis:6379/0
     depends_on:
       - mongodb
       - redis
@@ -75,11 +75,11 @@ services:
     restart: always
     ports:
       - "5002:5002"
+    env_file:
+      - .env
     environment:
       - FLASK_APP=app.py
       - FLASK_ENV=development
-      - MONGODB_URI=mongodb://mongodb:27017/adaptive_learning
-      - REDIS_URL=redis://redis:6379/1
     depends_on:
       - mongodb
       - redis
@@ -94,11 +94,11 @@ services:
     restart: always
     ports:
       - "5003:5003"
+    env_file:
+      - .env
     environment:
       - FLASK_APP=app.py
       - FLASK_ENV=development
-      - MONGODB_URI=mongodb://mongodb:27017/adaptive_learning
-      - REDIS_URL=redis://redis:6379/2
     depends_on:
       - mongodb
       - redis
@@ -113,13 +113,13 @@ services:
     restart: always
     ports:
       - "5004:5004"
+    env_file:
+      - .env
     environment:
       - FLASK_APP=app.py
       - FLASK_ENV=development
-      - MONGODB_URI=mongodb://mongodb:27017/adaptive_learning
-      - REDIS_URL=redis://redis:6379/3
-      - CELERY_BROKER_URL=redis://redis:6379/4
-      - CELERY_RESULT_BACKEND=redis://redis:6379/4
+      - CELERY_BROKER_URL=${REDIS_URL}/4
+      - CELERY_RESULT_BACKEND=${REDIS_URL}/4
     depends_on:
       - mongodb
       - redis
@@ -133,11 +133,11 @@ services:
     container_name: analytics-worker
     restart: always
     command: celery -A celery_worker.celery worker --loglevel=info
+    env_file:
+      - .env
     environment:
-      - MONGODB_URI=mongodb://mongodb:27017/adaptive_learning
-      - REDIS_URL=redis://redis:6379/3
-      - CELERY_BROKER_URL=redis://redis:6379/4
-      - CELERY_RESULT_BACKEND=redis://redis:6379/4
+      - CELERY_BROKER_URL=${REDIS_URL}/4
+      - CELERY_RESULT_BACKEND=${REDIS_URL}/4
     depends_on:
       - mongodb
       - redis

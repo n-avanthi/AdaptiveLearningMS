@@ -210,7 +210,7 @@ def process_student_analytics(student_id):
                     }
     
     # Cache the detailed analytics in Redis (longer expiry)
-    redis_client.setex(f"student_analytics:{student_id}", 1800, json.dumps(analytics))
+    redis_client.setex(f"student_analytics:batch:{student_id}", 1800, json.dumps(analytics))
     
     # Store in database for historical reference
     analytics_record = {

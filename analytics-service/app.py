@@ -32,12 +32,20 @@ analytics_results_collection = db.analytics_results
 REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/3')
 redis_client = redis.from_url(REDIS_URL)
 
-# Health check endpoint
-@app.route('/health', methods=['GET'])
-def health_check():
-    return jsonify({'status': 'healthy', 'service': 'analytics-service'})
+# Checks if service is running
+@app.route('/', methods=['GET'])
+def index():
+    return jsonify({
+        "status": "healthy",
+        "service": "analytics-service",
+        "available_endpoints": [
+            "/api/analytics/students/{id}",
+            "/api/analytics/teachers/dashboard",
+            "/api/analytics/performance/summary"
+        ]
+    })
 
-# Get analytics for a specific student
+# Fetches analytics for a specific student
 @app.route('/api/analytics/students/<student_id>', methods=['GET'])
 def get_student_analytics(student_id):
     try:
