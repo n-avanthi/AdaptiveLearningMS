@@ -301,15 +301,8 @@ def update_profile():
     except Exception as e:
         return jsonify({'message': f'Error: {str(e)}'}), 500
 
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001) 
 
-# POST: http://localhost:5001/api/auth/register
-# {
-#     "username": "john_doe3",
-#     "email": "john.doe4@example.com",
-#     "password": "SecurePass123",
-#     "role": "student",
-#     "first_name": "John",
-#     "last_name": "Doe"
-# }
