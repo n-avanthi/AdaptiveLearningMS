@@ -1,0 +1,51 @@
+Analytics Service API
+=========================================
+
+1. [GET] http://localhost:5003/
+--------------------------
+Response:
+{
+  "message": "This is the analytics service"
+}
+
+---------------------------------------------------
+
+2. [POST] http://localhost:5003/submit-performance
+--------------------------
+Body (raw JSON):
+{
+  "username": "alice123",
+  "score": 80,
+  "time_taken": 120,
+  "subject": "Mathematics"
+}
+
+Expected Response:
+{
+  "message": "Performance data submitted successfully"
+}
+
+---------------------------------------------------
+
+3. [GET] http://localhost:5003/insights/alice123
+--------------------------
+Expected Response:
+{
+  "task_id": "<TASK_ID>",
+  "status": "Processing"
+}
+
+---------------------------------------------------
+
+4. [GET] http://localhost:5003/task-status/<TASK_ID>
+--------------------------
+Expected Response:
+{
+  "status": "Completed",
+  "result": {
+    "average_score": 75.6,
+    "total_time_spent": 350,
+    "most_attempted_subject": "Mathematics",
+    "weak_subjects": ["Science"]
+  }
+}

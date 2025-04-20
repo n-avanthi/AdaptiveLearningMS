@@ -1,0 +1,53 @@
+Content Delivery Service 
+=====================================================
+
+1. [GET] http://localhost:5001/
+--------------------------
+Response:
+{
+  "message": "This is the Content Delivery Service"
+}
+
+---------------------------------------------------
+
+2. [POST] http://localhost:5001/add-content
+--------------------------
+Body (raw JSON):
+{
+  "title": "Introduction to Python",
+  "subject": "Programming",
+  "level": "Beginner",
+  "type": "Video",
+  "content_url": "http://example.com/python_intro"
+}
+
+Expected Response:
+{
+  "message": "Content added successfully!"
+}
+
+---------------------------------------------------
+
+3. [GET] http://localhost:5001/get-content
+--------------------------
+Query Params:
+- subject (optional)
+- level (optional)
+
+Example: http://localhost:5001/get-content?subject=Programming&level=Beginner
+
+Expected Response (Example):
+[
+  {
+    "title": "Introduction to Python",
+    "subject": "Programming",
+    "level": "Beginner",
+    "type": "Video",
+    "content_url": "http://example.com/python_intro"
+  }
+]
+
+In case no content is found:
+{
+  "message": "No content found for given filters"
+}

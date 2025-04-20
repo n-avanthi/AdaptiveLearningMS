@@ -1,0 +1,57 @@
+User Service API 
+=========================================
+
+1. [GET] http://localhost:5000/
+--------------------------
+Response:
+{
+  "message": "This is the User Service"
+}
+
+---------------------------------------------------
+
+2. [POST] http://localhost:5000/register
+--------------------------
+Body (raw JSON):
+{
+  "username": "alice123",
+  "email": "alice@example.com",
+  "password": "password123",
+  "role": "student"
+}
+
+Expected Response:
+{
+  "message": "User registered successfully!"
+}
+
+---------------------------------------------------
+
+3. [POST] /http://localhost:5000/login
+--------------------------
+Body (raw JSON):
+{
+  "username": "alice123",
+  "password": "password123"
+}
+
+Expected Response:
+{
+  "token": "<JWT_TOKEN>"
+}
+
+Save this token for use in the /profile endpoint.
+
+---------------------------------------------------
+
+4. [GET] http://localhost:5000/profile
+--------------------------
+Headers:
+- Authorization: <JWT_TOKEN_FROM_LOGIN>
+
+Expected Response:
+{
+  "username": "alice123",
+  "email": "alice@example.com",
+  "role": "student"
+}

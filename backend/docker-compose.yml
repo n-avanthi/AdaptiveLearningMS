@@ -1,0 +1,106 @@
+version: '3.8'
+
+services:
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "8000:8000"
+    depends_on:
+      - user-service
+      - content-service
+      # - adaptive-engine-service
+      # - analytics-service
+      - quiz-service
+    networks:
+      - app-network
+
+  user-service:
+    build: ./user-service
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongodb
+    networks:
+      - app-network
+
+  content-service:
+    build: ./content-service
+    ports:
+      - "5001:5001"
+    depends_on:
+      - mongodb
+    networks:
+      - app-network
+
+  # analytics-service:
+  #   build: ./analytics-service
+  #   ports:
+  #     - "5003:5003"
+  #   depends_on:
+  #     - mongodb
+  #   networks:
+  #     - app-network
+
+  # adaptive-engine-service:
+  #   build: ./adaptive-engine
+  #   ports:
+  #     - "5002:5002"
+  #   depends_on:
+  #     - redis
+  #   networks:
+  #     - app-network
+
+  quiz-service:
+    build: ./quiz-service
+    ports:
+      - "5004:5004"
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - app-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:5004/" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  quiz-worker:
+    build:
+      context: ./quiz-service
+      dockerfile: Dockerfile.worker
+    depends_on:
+      quiz-service:
+        condition: service_healthy
+      mongodb:
+        condition: service_started
+      redis:
+        condition: service_started
+    networks:
+      - app-network
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - app-network
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:

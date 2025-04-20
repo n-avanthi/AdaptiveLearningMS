@@ -1,0 +1,43 @@
+API Gateway 
+=========================================
+
+ 1. [GET] http://localhost:8000/
+--------------------------
+Response:
+{
+  "message": "This is the API Gateway"
+}
+
+---------------------------------------------------
+
+2. [GET/POST] http://localhost:8000/users/
+--------------------------
+
+Headers:
+  Authorization: Bearer <JWT_TOKEN>
+
+---------------------------------------------------
+
+3. [GET/POST] http://localhost:8000/content/
+--------------------------
+
+Headers:
+  Authorization: Bearer <JWT_TOKEN>
+
+---------------------------------------------------
+
+4. [GET/POST] http://localhost:8000/adaptive/
+--------------------------
+
+Headers:
+  Authorization: Bearer <JWT_TOKEN>
+
+---------------------------------------------------
+
+#### 5. [GET/POST] http://localhost:8000/analytics/
+--------------------------
+
+Headers:
+  Authorization: Bearer <JWT_TOKEN>
+
+---------------------------------------------------

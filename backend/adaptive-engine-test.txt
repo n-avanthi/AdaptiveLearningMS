@@ -1,0 +1,68 @@
+Adaptive Engine Service
+=====================================================
+
+1. [GET] http://localhost:5002/
+--------------------------
+Response:
+{
+  "message": "This is the Adaptive Engine Service"
+}
+
+---------------------------------------------------
+
+2. [POST] http://localhost:5002/recommend
+--------------------------
+Body (raw JSON):
+{
+  "username": "alice123",
+  "score": 85,
+  "difficulty": "Beginner",
+  "subject": "Mathematics"
+}
+
+Expected Response:
+{
+  "next_content": {
+    "title": "Introduction to Algebra",
+    "subject": "Mathematics",
+    "level": "Intermediate",
+    "type": "Video",
+    "content_url": "http://example.com/algebra_intro"
+  }
+}
+
+---------------------------------------------------
+
+3. [GET] http://localhost:5002/last-recommendation/alice123
+--------------------------
+Expected Response:
+{
+  "last_recommendation": {
+    "title": "Introduction to Algebra",
+    "subject": "Mathematics",
+    "level": "Intermediate",
+    "type": "Video",
+    "content_url": "http://example.com/algebra_intro"
+  }
+}
+
+---------------------------------------------------
+
+4. [GET] http://localhost:5002/learning-history/alice123
+--------------------------
+Expected Response:
+{
+  "history": [
+    {
+      "timestamp": 1647267823,
+      "content": {
+        "title": "Introduction to Algebra",
+        "subject": "Mathematics",
+        "level": "Intermediate",
+        "type": "Video",
+        "content_url": "http://example.com/algebra_intro"
+      }
+    },
+    ...
+  ]
+}

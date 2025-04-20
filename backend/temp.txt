@@ -1,0 +1,31 @@
+run "mongod" on powershell
+run "sudo service redis-server start" on wsl
+run "redis-cli ping" to check if redis is running on wsl
+run "sudo service redis-server stop" to stop redis on wsl
+run "celery -A celery_worker.celery worker --loglevel=info --pool=solo" on powershell inside /analytics-service
+run "docker build -t user-service ." to build a service
+run "docker run -p 5000:5000 user-service" to run the container
+run "docker-compose logs -f analytics-service" to check logs for a service
+run "docker-compose stop analytics-service" to stop a service
+run "docker-compose rm -f analytics-service" to remove a container
+run "docker-compose up --build" to build and run all services
+run "docker-compose ps" to verify if all containers are running
+
+
+user service: http://localhost:5000/
+content service: http://localhost:5001/
+adaptive engine service: http://localhost:5002/
+analytics server : http://localhost:5003/
+api gateway: http://localhost:8000/
+
+jwt token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImEiLCJleHAiOjE3NDQ0NjMwNjR9.yPydnKNPObEkXpYbQAYQ0NHXSVH_GWc55LJtPEkriqs"
+
+- ml model
+- for recommendation it should take subject (now default: mathematics)
+- login page must have register option too
+- landing page
+
+- run mongod
+- test user-service on 5000
+- test user-service on 8000
+- test user-service on frontend
