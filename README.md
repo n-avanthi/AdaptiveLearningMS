@@ -2,28 +2,6 @@
 
 This project implements an Adaptive Learning Management System (LMS) using a microservices architecture. It consists of a frontend application and several backend microservices managed via Docker.
 
-## Project Structure
-
-```
-.
-├── backend/
-│   ├── api-gateway/        # Handles incoming requests, authentication, and routing
-│   ├── content-service/    # Manages learning content (creation, retrieval)
-│   ├── user-service/       # Manages user registration, login, and profiles
-│   ├── quiz-service/       # Manages quizzes, submissions, and feedback
-│   ├── adaptive-engine/    # (Currently inactive) Intended for adaptive learning logic
-│   ├── analytics-service/  # (Currently inactive) Intended for analytics and reporting
-│   ├── docker-compose.yml  # Defines and orchestrates the backend services
-│   └── ...                 # Other service-specific files and tests
-├── frontend/
-│   ├── public/             # Static assets
-│   ├── src/                # Frontend source code (likely React)
-│   ├── package.json        # Frontend dependencies and scripts
-│   ├── vite.config.js      # Vite build configuration
-│   └── ...                 # Other frontend files
-└── README.md               # This file
-```
-
 ## Backend Overview
 
 The backend follows a microservices pattern orchestrated using Docker Compose.
@@ -40,7 +18,7 @@ The backend follows a microservices pattern orchestrated using Docker Compose.
 
 2.  **User Service (`user-service`)**:
     *   Manages user accounts: registration, login, profile management.
-    *   Likely interacts with the MongoDB database for persistence.
+    *   Interacts with the MongoDB database for persistence.
     *   Listens on port 5000.
 
 3.  **Content Service (`content-service`)**:
@@ -56,7 +34,7 @@ The backend follows a microservices pattern orchestrated using Docker Compose.
 
 5.  **Quiz Worker (`quiz-worker`)**:
     *   A background worker process associated with the `quiz-service`.
-    *   Likely handles asynchronous tasks such as grading quiz submissions.
+    *   Handles asynchronous tasks such as grading quiz submissions.
     *   Depends on `quiz-service`, `mongodb`, and `redis`.
 
 6.  **MongoDB (`mongodb`)**:
@@ -67,24 +45,12 @@ The backend follows a microservices pattern orchestrated using Docker Compose.
     *   An in-memory data store used for caching and potentially as a message broker for the `quiz-service` and `quiz-worker`.
     *   Runs in a Docker container.
 
-### Inactive Services:
-
-*   **Adaptive Engine (`adaptive-engine`)**: Intended to provide adaptive learning features based on user performance. Currently commented out in `docker-compose.yml`.
-*   **Analytics Service (`analytics-service`)**: Intended to collect and process user interaction data for analytics. Currently commented out in `docker-compose.yml`.
-
-## Frontend Overview
-
-*   Located in the `frontend/` directory.
-*   Appears to be a modern JavaScript application, likely using React (based on typical file structure and `vite.config.js`).
-*   Uses `vite` as the build tool.
-*   Interacts with the backend via the API Gateway (running on `http://localhost:8000` when run locally or via Docker).
-
 ## Getting Started
 
 ### Prerequisites
 
 *   Docker and Docker Compose
-*   Node.js and npm (or yarn) for frontend development
+*   Node.js and npm for frontend development
 
 ### Running the Application (Docker)
 
@@ -96,8 +62,8 @@ The backend follows a microservices pattern orchestrated using Docker Compose.
     ```bash
     docker-compose up --build -d
     ```
-    This will build the Docker images for each service (if they don't exist) and start the containers in detached mode.
-3.  **Access the frontend:** The frontend is likely configured to run separately (or needs its setup steps added here). Typically, you would:
+    This will build the Docker images for each service and start the containers in detached mode.
+3.  **Access the frontend:** The frontend is configured to run separately. 
     ```bash
     cd ../frontend
     npm install # or yarn install
@@ -116,12 +82,12 @@ The backend follows a microservices pattern orchestrated using Docker Compose.
 
 ## Environment Variables
 
-The API Gateway uses a `JWT_SECRET` for signing tokens. Ensure this is set appropriately (e.g., in a `.env` file within the `api-gateway` directory).
+The API Gateway uses a `JWT_SECRET` for signing tokens. Ensure this is set in a `.env` file.
 
 ## Key Technologies
 
 *   **Backend:** Python (Flask), JWT
-*   **Frontend:** JavaScript (Likely React), Vite
+*   **Frontend:** JavaScript, React, Vite
 *   **Database:** MongoDB
 *   **Caching/Queueing:** Redis
 *   **Orchestration:** Docker, Docker Compose 
